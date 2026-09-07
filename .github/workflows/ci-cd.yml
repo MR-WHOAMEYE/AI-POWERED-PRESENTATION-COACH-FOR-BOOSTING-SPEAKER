@@ -189,6 +189,22 @@ jobs:
             sudo chmod -R 755 /etc/letsencrypt || true
 
             ENV_FILE="$APP_DIR/.env"
+
+            # Persist a stable SECRET_KEY across deployments
+            # If the secret is not set in GitHub, generate one and save it locally
+            SECRET_KEY_FILE="$HOME/.presentation_coach_secret_key"
+            if [ -z "${SECRET_KEY}" ]; then
+              if [ -f "$SECRET_KEY_FILE" ]; then
+                SECRET_KEY=$(cat "$SECRET_KEY_FILE")
+                echo "🔑 Using persisted SECRET_KEY from $SECRET_KEY_FILE"
+              else
+                SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+                echo "$SECRET_KEY" > "$SECRET_KEY_FILE"
+                chmod 600 "$SECRET_KEY_FILE"
+                echo "🔑 Generated new SECRET_KEY and persisted to $SECRET_KEY_FILE"
+              fi
+            fi
+
             > "$ENV_FILE"
             echo "MONGO_URI=mongodb://mongodb:27017/presentation_coach" >> "$ENV_FILE"
             echo "REDIS_URL=redis://redis:6379/0" >> "$ENV_FILE"
@@ -198,7 +214,8 @@ jobs:
             echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> "$ENV_FILE"
             echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> "$ENV_FILE"
             echo "GOOGLE_REDIRECT_URI=${SCHEME}://${APP_DOMAIN}/auth/callback" >> "$ENV_FILE"
-            echo "GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}" >> "$ENV_FILE"
+            echo "GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT:-presentai-7b59c}" >> "$ENV_FILE"
+            echo "FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT:-presentai-7b59c}" >> "$ENV_FILE"
             echo "FIREBASE_SERVICE_ACCOUNT_KEY=${FIREBASE_SERVICE_ACCOUNT_KEY}" >> "$ENV_FILE"
             echo "GEMINI_API_KEY=${GEMINI_API_KEY}" >> "$ENV_FILE"
             echo "GEMINI_MODEL=gemini-2.5-flash" >> "$ENV_FILE"

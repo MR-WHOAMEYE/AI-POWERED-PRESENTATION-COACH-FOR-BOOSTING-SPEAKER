@@ -57,17 +57,18 @@ def init_firebase():
                     # Fallthrough to ADC
             
             if not firebase_admin._apps:
-                # Check for explicit project ID
-                project_id = os.getenv('GOOGLE_CLOUD_PROJECT') or os.getenv('FIREBASE_PROJECT_ID')
-                options = {'projectId': project_id} if project_id else None
-                
+                # Check for explicit project ID (try multiple env var names)
+                project_id = (
+                    os.getenv('GOOGLE_CLOUD_PROJECT') or
+                    os.getenv('FIREBASE_PROJECT_ID') or
+                    os.getenv('GCLOUD_PROJECT') or
+                    'presentai-7b59c'  # fallback to known project ID
+                )
+                options = {'projectId': project_id}
+
                 # Use default credentials (Application Default Credentials)
                 firebase_admin.initialize_app(options=options)
-                
-                if project_id:
-                    print(f"✅ Firebase initialized with project ID (ADC): {project_id}")
-                else:
-                    print("⚠️ Firebase initialized without explicit project ID (using ADC)")
+                print(f"✅ Firebase initialized with project ID (ADC): {project_id}")
                 
         _firebase_initialized = True
     except Exception as e:
