@@ -180,10 +180,13 @@ jobs:
             if [ -n "$DOMAIN_NAME" ]; then
               APP_DOMAIN="$DOMAIN_NAME"
             else
-              APP_DOMAIN="${EC2_HOST}.nip.io"
+              APP_DOMAIN="presentation-coach.duckdns.org"
             fi
-            SCHEME="${APP_SCHEME:-http}"
+            SCHEME="${APP_SCHEME:-https}"
             echo "📝 Writing environment files (domain: $APP_DOMAIN, scheme: $SCHEME)..."
+
+            # Ensure SSL certificates are readable by Nginx container
+            sudo chmod -R 755 /etc/letsencrypt || true
 
             ENV_FILE="$APP_DIR/.env"
             > "$ENV_FILE"
