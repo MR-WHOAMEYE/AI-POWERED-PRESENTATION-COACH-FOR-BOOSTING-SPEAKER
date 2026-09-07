@@ -71,8 +71,18 @@ class ProductionConfig(Config):
     DEBUG = False
 
 
+class TestingConfig(Config):
+    """Testing configuration"""
+    TESTING = True
+    DEBUG = True
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/presentation_coach_test')
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/1')
+
+
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestingConfig,
     'default': DevelopmentConfig
 }
+
