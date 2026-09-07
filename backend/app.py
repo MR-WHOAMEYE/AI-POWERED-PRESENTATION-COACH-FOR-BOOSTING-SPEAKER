@@ -69,12 +69,15 @@ def create_app(config_name='default'):
     mongo_uri = app.config.get('MONGO_URI')
     if mongo_uri:
         try:
-            mongo_client = MongoClient(
-                mongo_uri,
-                tlsCAFile=certifi.where(),
-                serverSelectionTimeoutMS=5000,
-                connectTimeoutMS=5000
-            )
+            client_kwargs = {
+                'serverSelectionTimeoutMS': 5000,
+                'connectTimeoutMS': 5000
+            }
+            # Only use TLS/certifi if connecting to MongoDB Atlas (mongodb+srv://) or TLS explicitly enabled
+            if 'mongodb+srv://' in mongo_uri or 'tls=true' in mongo_uri.lower() or 'ssl=true' in mongo_uri.lower():
+                client_kwargs['tlsCAFile'] = certifi.where()
+
+            mongo_client = MongoClient(mongo_uri, **client_kwargs)
             # Ping server to verify connection
             mongo_client.admin.command('ping')
             db = mongo_client.get_database()
