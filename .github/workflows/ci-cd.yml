@@ -159,6 +159,11 @@ jobs:
               cd "$APP_DIR"
               git fetch --all
               git reset --hard origin/main
+            elif [ -d "$APP_DIR" ]; then
+              echo "🧹 Existing directory is not a git repo — recreating it..."
+              rm -rf "$APP_DIR"
+              git clone "$REPO_URL" "$APP_DIR"
+              cd "$APP_DIR"
             else
               echo "📥 Cloning repository for the first time..."
               git clone "$REPO_URL" "$APP_DIR"
