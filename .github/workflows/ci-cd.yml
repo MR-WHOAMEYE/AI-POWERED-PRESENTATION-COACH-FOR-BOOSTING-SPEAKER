@@ -151,9 +151,7 @@ jobs:
   # ==========================================================
   deploy:
     name: Deploy to AWS EC2
-    environment:
-      name: 'deploy to aws'
-      url: http://${{ secrets.EC2_HOST }}
+    environment: 'deploy to aws'
     needs: build-docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
