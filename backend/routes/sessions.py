@@ -473,8 +473,8 @@ def upload_chunk(user, session_id):
                 temp_path = temp.name
             
             # Upload to Vercel Blob or Cloudinary
-            if vercel_blob_service.configured:
-                result = vercel_blob_service.upload_video_multipart(
+            if vercel_blob_service.configured:  # noqa: F821
+                result = vercel_blob_service.upload_video_multipart(  # noqa: F821
                     video_file=temp_path,
                     filename=f"session_{session_id}.webm",
                     session_id=session_id,
