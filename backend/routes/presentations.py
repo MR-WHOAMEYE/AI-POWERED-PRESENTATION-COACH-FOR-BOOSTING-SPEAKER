@@ -46,20 +46,45 @@ def require_auth(f):
 
 
 @presentations_bp.route('/')
-@require_auth
-def list_presentations(user, credentials):
+def list_presentations():
     """List user's Google Slides presentations (fresh from Google - thumbnails expire)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    db = get_db()
+    if db is None:
+        return jsonify({'error': 'Database not available'}), 500
+        
+    user = db.users.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'error': 'User not found'}), 401
+    
+    # Check if user has connected Google Drive/Slides
+    credentials = google_auth_service.get_valid_credentials_from_doc(user, db)
+    if not credentials:
+        return jsonify({
+            'presentations': [],
+            'hasGoogleToken': False,
+            'cached': False
+        }), 200
+
     try:
         drive_service = get_drive_service(credentials)
         presentations = drive_service.list_presentations()
         
         return jsonify({
             'presentations': presentations,
+            'hasGoogleToken': True,
             'cached': False
-        })
+        }), 200
     except Exception as e:
         print(f"Error listing presentations: {e}")
-        return jsonify({'error': 'Failed to list presentations'}), 500
+        return jsonify({
+            'presentations': [],
+            'hasGoogleToken': False,
+            'error': 'Failed to list presentations'
+        }), 200
 
 
 @presentations_bp.route('/<presentation_id>')

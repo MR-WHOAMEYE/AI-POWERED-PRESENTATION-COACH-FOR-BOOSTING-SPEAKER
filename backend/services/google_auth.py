@@ -97,6 +97,9 @@ class GoogleAuthService:
     
     def get_valid_credentials_from_doc(self, user_doc, db):
         """Get valid credentials for a user document, refreshing if needed"""
+        if not user_doc or (not user_doc.get('access_token') and not user_doc.get('refresh_token')):
+            return None
+
         from bson import ObjectId
         
         # Check if token is expired
