@@ -223,23 +223,12 @@ jobs:
             echo "BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN}" >> "$ENV_FILE"
             echo "ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}" >> "$ENV_FILE"
 
-            # Write FIREBASE_SERVICE_ACCOUNT_KEY safely — minifies JSON to one line
-            # so newlines inside the private_key don't break the .env file
-            export ENV_FILE
-            python3 -c "
-import os, json
-raw = os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY', '')
-if raw.strip():
-    try:
-        single_line = json.dumps(json.loads(raw), separators=(',', ':'))
-    except Exception:
-        single_line = raw.strip()
-    with open(os.environ['ENV_FILE'], 'a') as f:
-        f.write('FIREBASE_SERVICE_ACCOUNT_KEY=' + single_line + '\n')
-    print('Firebase key written to .env')
-else:
-    print('FIREBASE_SERVICE_ACCOUNT_KEY not set, skipping')
-"
+            # Write FIREBASE_SERVICE_ACCOUNT_KEY safely — collapse JSON to a single line
+            if [ -n "$FIREBASE_SERVICE_ACCOUNT_KEY" ]; then
+              CLEAN_KEY=$(echo "$FIREBASE_SERVICE_ACCOUNT_KEY" | tr -d '\r\n')
+              echo "FIREBASE_SERVICE_ACCOUNT_KEY='$CLEAN_KEY'" >> "$ENV_FILE"
+              echo "✅ FIREBASE_SERVICE_ACCOUNT_KEY written to .env"
+            fi
 
             mkdir -p "$APP_DIR/backend"
             cp "$APP_DIR/.env" "$APP_DIR/backend/.env"
