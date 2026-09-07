@@ -177,30 +177,24 @@ jobs:
             fi
             echo "📝 Writing environment files (domain: $APP_DOMAIN, scheme: https)..."
 
-            cat > "$APP_DIR/.env" <<EOF
-# ── Core ─────────────────────────────────────────────────────────
-MONGO_URI=mongodb://mongodb:27017/presentation_coach
-REDIS_URL=redis://redis:6379/0
-FRONTEND_URL=https://${APP_DOMAIN}
-SECRET_KEY=${SECRET_KEY}
-FLASK_ENV=production
-# ── Google OAuth ──────────────────────────────────────────────────
-GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-GOOGLE_REDIRECT_URI=https://${APP_DOMAIN}/auth/callback
-# ── Google Cloud / Firebase ───────────────────────────────────────
-GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
-FIREBASE_SERVICE_ACCOUNT_KEY=${FIREBASE_SERVICE_ACCOUNT_KEY}
-# ── Gemini AI ─────────────────────────────────────────────────────
-GEMINI_API_KEY=${GEMINI_API_KEY}
-GEMINI_MODEL=gemini-2.5-flash
-GEMINI_ENABLE_SEARCH=false
-# ── Cloudinary (video storage) ────────────────────────────────────
-CLOUDINARY_URL=${CLOUDINARY_URL}
-# ── Optional services ─────────────────────────────────────────────
-BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN}
-ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
-EOF
+            ENV_FILE="$APP_DIR/.env"
+            > "$ENV_FILE"
+            echo "MONGO_URI=mongodb://mongodb:27017/presentation_coach" >> "$ENV_FILE"
+            echo "REDIS_URL=redis://redis:6379/0" >> "$ENV_FILE"
+            echo "FRONTEND_URL=https://${APP_DOMAIN}" >> "$ENV_FILE"
+            echo "SECRET_KEY=${SECRET_KEY}" >> "$ENV_FILE"
+            echo "FLASK_ENV=production" >> "$ENV_FILE"
+            echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> "$ENV_FILE"
+            echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> "$ENV_FILE"
+            echo "GOOGLE_REDIRECT_URI=https://${APP_DOMAIN}/auth/callback" >> "$ENV_FILE"
+            echo "GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}" >> "$ENV_FILE"
+            echo "FIREBASE_SERVICE_ACCOUNT_KEY=${FIREBASE_SERVICE_ACCOUNT_KEY}" >> "$ENV_FILE"
+            echo "GEMINI_API_KEY=${GEMINI_API_KEY}" >> "$ENV_FILE"
+            echo "GEMINI_MODEL=gemini-2.5-flash" >> "$ENV_FILE"
+            echo "GEMINI_ENABLE_SEARCH=false" >> "$ENV_FILE"
+            echo "CLOUDINARY_URL=${CLOUDINARY_URL}" >> "$ENV_FILE"
+            echo "BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN}" >> "$ENV_FILE"
+            echo "ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}" >> "$ENV_FILE"
 
             mkdir -p "$APP_DIR/backend"
             cp "$APP_DIR/.env" "$APP_DIR/backend/.env"
