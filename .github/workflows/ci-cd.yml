@@ -216,13 +216,34 @@ jobs:
             echo "GOOGLE_REDIRECT_URI=${SCHEME}://${APP_DOMAIN}/auth/callback" >> "$ENV_FILE"
             echo "GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT:-presentai-7b59c}" >> "$ENV_FILE"
             echo "FIREBASE_PROJECT_ID=${GOOGLE_CLOUD_PROJECT:-presentai-7b59c}" >> "$ENV_FILE"
-            echo "FIREBASE_SERVICE_ACCOUNT_KEY=${FIREBASE_SERVICE_ACCOUNT_KEY}" >> "$ENV_FILE"
             echo "GEMINI_API_KEY=${GEMINI_API_KEY}" >> "$ENV_FILE"
             echo "GEMINI_MODEL=gemini-2.5-flash" >> "$ENV_FILE"
             echo "GEMINI_ENABLE_SEARCH=false" >> "$ENV_FILE"
             echo "CLOUDINARY_URL=${CLOUDINARY_URL}" >> "$ENV_FILE"
             echo "BLOB_READ_WRITE_TOKEN=${BLOB_READ_WRITE_TOKEN}" >> "$ENV_FILE"
             echo "ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}" >> "$ENV_FILE"
+
+            # Write FIREBASE_SERVICE_ACCOUNT_KEY safely — minifies JSON to a single
+            # line so newlines inside the private_key don't break the .env file
+            export ENV_FILE
+            python3 - <<'PYEOF'
+import os, json, sys
+raw = os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY', '')
+if raw.strip():
+    try:
+        # Parse and re-dump as compact single-line JSON
+        obj = json.loads(raw)
+        single_line = json.dumps(obj, separators=(',', ':'))
+    except json.JSONDecodeError:
+        # Already stored as single-line or plain string — use as-is
+        single_line = raw.strip()
+    env_file = os.environ.get('ENV_FILE', '')
+    with open(env_file, 'a') as f:
+        f.write(f'FIREBASE_SERVICE_ACCOUNT_KEY={single_line}\n')
+    print('✅ FIREBASE_SERVICE_ACCOUNT_KEY written to .env')
+else:
+    print('⚠️  FIREBASE_SERVICE_ACCOUNT_KEY is not set — skipping')
+PYEOF
 
             mkdir -p "$APP_DIR/backend"
             cp "$APP_DIR/.env" "$APP_DIR/backend/.env"
