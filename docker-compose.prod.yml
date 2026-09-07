@@ -46,7 +46,6 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/presentation_coach
       - REDIS_URL=redis://redis:6379/0
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
       - FLASK_ENV=production
     env_file:
       - path: ./.env
