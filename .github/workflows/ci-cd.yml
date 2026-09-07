@@ -115,6 +115,7 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          APP_SCHEME: ${{ secrets.APP_SCHEME }}
           # ── Optional secrets (leave empty in GitHub if not used) ──────────
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
@@ -127,7 +128,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: SECRET_KEY,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GEMINI_API_KEY,CLOUDINARY_URL,BLOB_READ_WRITE_TOKEN,ELEVENLABS_API_KEY,GOOGLE_CLOUD_PROJECT,FIREBASE_SERVICE_ACCOUNT_KEY,EC2_HOST,DOMAIN_NAME,BACKEND_URL,COMMIT_SHA,REPO_URL
+          envs: SECRET_KEY,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GEMINI_API_KEY,CLOUDINARY_URL,BLOB_READ_WRITE_TOKEN,ELEVENLABS_API_KEY,GOOGLE_CLOUD_PROJECT,FIREBASE_SERVICE_ACCOUNT_KEY,EC2_HOST,DOMAIN_NAME,BACKEND_URL,APP_SCHEME,COMMIT_SHA,REPO_URL
           command_timeout: 30m
           script: |
             set -e
@@ -181,18 +182,19 @@ jobs:
             else
               APP_DOMAIN="${EC2_HOST}.nip.io"
             fi
-            echo "📝 Writing environment files (domain: $APP_DOMAIN, scheme: https)..."
+            SCHEME="${APP_SCHEME:-http}"
+            echo "📝 Writing environment files (domain: $APP_DOMAIN, scheme: $SCHEME)..."
 
             ENV_FILE="$APP_DIR/.env"
             > "$ENV_FILE"
             echo "MONGO_URI=mongodb://mongodb:27017/presentation_coach" >> "$ENV_FILE"
             echo "REDIS_URL=redis://redis:6379/0" >> "$ENV_FILE"
-            echo "FRONTEND_URL=https://${APP_DOMAIN}" >> "$ENV_FILE"
+            echo "FRONTEND_URL=${SCHEME}://${APP_DOMAIN}" >> "$ENV_FILE"
             echo "SECRET_KEY=${SECRET_KEY}" >> "$ENV_FILE"
             echo "FLASK_ENV=production" >> "$ENV_FILE"
             echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> "$ENV_FILE"
             echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> "$ENV_FILE"
-            echo "GOOGLE_REDIRECT_URI=https://${APP_DOMAIN}/auth/callback" >> "$ENV_FILE"
+            echo "GOOGLE_REDIRECT_URI=${SCHEME}://${APP_DOMAIN}/auth/callback" >> "$ENV_FILE"
             echo "GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}" >> "$ENV_FILE"
             echo "FIREBASE_SERVICE_ACCOUNT_KEY=${FIREBASE_SERVICE_ACCOUNT_KEY}" >> "$ENV_FILE"
             echo "GEMINI_API_KEY=${GEMINI_API_KEY}" >> "$ENV_FILE"
@@ -216,7 +218,7 @@ jobs:
             echo "VITE_FIREBASE_MESSAGING_SENDER_ID=789581193280" >> "$FRONTEND_ENV"
             echo "VITE_FIREBASE_APP_ID=1:789581193280:web:3fa4f44b1d4a4e2780bfa5" >> "$FRONTEND_ENV"
             echo "VITE_FIREBASE_MEASUREMENT_ID=G-X8RPMY8R6L" >> "$FRONTEND_ENV"
-            echo "VITE_API_URL=${BACKEND_URL:-https://${APP_DOMAIN}}" >> "$FRONTEND_ENV"
+            echo "VITE_API_URL=${BACKEND_URL:-${SCHEME}://${APP_DOMAIN}}" >> "$FRONTEND_ENV"
 
             # Secure env files — owner read-only
             chmod 600 "$APP_DIR/.env" "$APP_DIR/backend/.env" "$FRONTEND_ENV"
