@@ -7,6 +7,8 @@ from bson import ObjectId
 from models import PracticeSession
 from services.google_auth import google_auth_service
 from services.drive_service import get_drive_service
+from services.vercel_blob_service import vercel_blob_service
+from services.cloudinary_service import cloudinary_service
 from datetime import datetime
 from functools import wraps
 

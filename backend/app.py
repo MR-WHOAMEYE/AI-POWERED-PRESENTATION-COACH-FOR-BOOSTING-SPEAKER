@@ -18,7 +18,6 @@ socketio = None
 
 def get_db():
     """Get database instance"""
-    global db
     return db
 
 
