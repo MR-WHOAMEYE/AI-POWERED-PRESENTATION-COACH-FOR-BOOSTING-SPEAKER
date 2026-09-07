@@ -301,8 +301,10 @@ def google_callback():
         return redirect(f"{return_url}?google_connected=true")
         
     except Exception as e:
+        import urllib.parse
         print(f"OAuth error: {e}")
-        return redirect(f"{current_app.config.get('FRONTEND_URL')}?error=auth_failed")
+        error_msg = urllib.parse.quote(str(e)[:200])
+        return redirect(f"{current_app.config.get('FRONTEND_URL')}?error=auth_failed&details={error_msg}")
 
 
 @auth_bp.route('/status')
