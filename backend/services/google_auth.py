@@ -33,7 +33,8 @@ class GoogleAuthService:
         flow = Flow.from_client_config(
             client_config,
             scopes=current_app.config.get('GOOGLE_SCOPES'),
-            redirect_uri=redirect_uri
+            redirect_uri=redirect_uri,
+            autogenerate_code_verifier=False
         )
         
         authorization_url, state = flow.authorization_url(
@@ -53,7 +54,8 @@ class GoogleAuthService:
         flow = Flow.from_client_config(
             client_config,
             scopes=current_app.config.get('GOOGLE_SCOPES'),
-            redirect_uri=redirect_uri
+            redirect_uri=redirect_uri,
+            autogenerate_code_verifier=False
         )
         
         flow.fetch_token(code=code)
