@@ -26,7 +26,7 @@ export default function Sidebar({ collapsed = false, hideMobileNav = false }) {
             <div className="h-16 flex items-center px-6 border-b border-border-dark">
                 <div className="flex items-center gap-3 text-white">
                     <div className="size-6 text-primary"><LogoIcon /></div>
-                    {(!collapsed || isMobile) && <h2 className="text-white text-lg font-bold tracking-tight">PresentAIv2</h2>}
+                    {(!collapsed || isMobile) && <h2 className="text-white text-lg font-bold tracking-tight">PresentAI</h2>}
                 </div>
                 {isMobile && (
                     <button
